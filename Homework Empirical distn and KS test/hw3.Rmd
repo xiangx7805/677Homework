@@ -1,0 +1,79 @@
+---
+title: "Homework Empirical distn and KS test"
+author: "Xiang XU"
+date: "March 7, 2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+pacman::p_load(dplyr, ggplot2, plotly, tidyverse, magrittr, 
+               RCurl, readr, ACSWR, utils, qdapTools,sfsmisc  )
+
+```
+
+1.
+```{r}
+Df1=read.table("maybe_uniform.txt")
+test1=c(Df1$V1,Df1$V2,Df1$V3,Df1$V4,Df1$V5)
+ks.test(test1,"punif")
+x<-seq(-5, 5, by=0.01)
+fx <- ifelse(x > 0 & x <=0.5, 2/3,
+   ifelse(x > 0.5 & x < 1,  0.5, 0))
+plot(x,fx)
+ks.test(fx,"punif")
+```
+According to result of ks-test(P-value bigger than 0.05, fail to reject), therefore, these data is distributed as a Uniform distribution on [0,1].
+Since in ks-test, the D value of fx is bigger than that of data, the model below is not better than the Uniform???
+
+2.
+```{r}
+Df2=read.table("maybe_normal.txt")
+d=c(Df2$V1,Df2$V2,Df2$V3,Df2$V4,Df2$V5)
+test2=(c(Df2$V1,Df2$V2,Df2$V3,Df2$V4,Df2$V5)-rep(26,4))/2
+ks.test(test2,"pnorm")
+qqnorm(d)
+hist(d)
+```
+According to Ks-test(p smaller than 0.05 fail to reject) and qqnorm, the data generally follow normal disatribution.
+
+
+3. 
+```{r}
+Df31=read.table("maybe_same_1.txt")
+x=c(Df31$V1,Df31$V2,Df31$V3,Df31$V4,Df31$V5)
+Df32=read.table("maybe_same_2.txt")
+y=c(Df32$V1,Df32$V2,Df32$V3,Df32$V4,Df32$V5)
+ks.test(x,y)
+ks.test(x+2,y)
+```
+
+Since p-value of of ks.test(X,Y) is much larger than 0.05. Then we fail to reject the null hypotheses, thus X and Y are from the same distribution. Since p-value of of ks.test(X+2,Y) is much smaller than 0.05.Then we reject the null hypotheses, therefore X+2 and Y are not from the same distribution
+
+
+4. 
+```{r}
+Df4=readRDS("norm_sample.Rdata")
+Df4_ecdf=ecdf(Df4)
+summary(Df4_ecdf)
+plot.ecdf(Df4)
+us=rnorm(25)
+ks.test(Df4,us)
+```
+
+
+5. 
+```{r}
+#Find a 95for F(4.9) ??? F(4.3).
+Df51=read.table("faithful.dat",header=TRUE,skip=25,sep="")
+Df52=read.table("fijiquakes.dat",header=T,sep="")
+mag<-Df52$mag
+par(mfrow=c(2,1))
+hist( mag,main="Earthquake Fiji data")
+u<-ecdf(mag)
+plot(u)
+print(th<-u(4.9)-u(4.3))
+# Estimate a 90 percent confidence interval for the mean waiting time
+ecdf.ksCI(Df51$waiting)
+```
